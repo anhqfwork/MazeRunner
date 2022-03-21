@@ -7,10 +7,12 @@
 
 //ENUMERATIONS
 enum shader_enum { SHADER_CORE_PROGRAM = 0 };
-enum texture_enum { TEX_PINK = 0, TEX_PINK_SPECULAR, 
-					TEX_CONTAINER, TEX_CONTAINER_SPECULAR,
-					TEX_VIRI, TEX_VIRI_SPECULAR,
-					TEX_GRADIENT, TEX_GRADIENT_SPECULAR};
+enum texture_enum {
+	TEX_PINK = 0, TEX_PINK_SPECULAR,
+	TEX_BRICKWALL, TEX_BRICKWALL_SPECULAR,
+	TEX_VIRI, TEX_VIRI_SPECULAR,
+	TEX_GRADIENT, TEX_GRADIENT_SPECULAR
+};
 enum material_enum { MAT_1 = 0 };
 enum mesh_enum { MESH_QUAD = 0 };
 
@@ -64,6 +66,7 @@ private:
 	std::vector<Model*> targets;
 
 	int score = 0;
+	int level = 1;
 
 	std::vector<PointLight*> pointLights;
 
@@ -79,6 +82,8 @@ private:
 	void initTextures();
 	void initMaterials();
 	void initModels();
+	void initModelsLevel2();
+	void initModelsLevel3();
 	void initPointLights();
 	void initLights();
 	void initUniforms();
@@ -97,26 +102,53 @@ public:
 
 	void moveEnemies(float, float, int);
 	bool checkCollisionBlock(glm::vec3);
-	bool checkCollisionEnemy();	
+	bool checkCollisionEnemy();
 	bool checkCollisionTarget();
 
 	void setWindowShouldClose();
 	int getWindowShouldClose();
 
-	int increaseScore() {
-		this->score += 1;
+	void setScore(int newScore) {
+		this->score = newScore;
+	}
+
+	int getScore()
+	{
 		return this->score;
 	}
 
-	bool isWin() {
-		if (score == 4) {
-			return true;
-		}
-		else {
-			return false;
-		}
+	void setLevel(int newLevel) {
+		this->level = newLevel;
 	}
 
+	int getLevel()
+	{
+		return this->level;
+	}
+
+	void isWin() {
+		if (score == 4) {
+			std::cout << "===========================\n";
+			std::cout << "YOU PASS LEVEl " << this->level << "!!!\n";
+			std::cout << "===========================\n";
+
+			this->setLevel(this->level + 1);
+			if (this->level == 2)
+			{
+				score = 0;
+				this->initModelsLevel2();
+			} 
+			else if (this->level == 3)
+			{
+				score = 0;
+				this->initModelsLevel3();
+			}
+			else {
+				std::cout << "YOU WIN!!" << "\n";
+				this->setWindowShouldClose();
+			}
+		}
+	}
 
 	void updateDt();
 	void updateMouseInput();

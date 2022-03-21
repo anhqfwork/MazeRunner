@@ -4,7 +4,7 @@
 
 int main()
 {
-	Game game("YOUTUBE_TUTORIAL",
+	Game game("MAZE RUNNER 3D GAME",
 		800, 800,
 		4, 4,
 		false);

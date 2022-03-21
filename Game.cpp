@@ -30,7 +30,7 @@ void Game::initWindow(
 	}
 
 	glfwGetFramebufferSize(this->window, &this->framebufferWidth, &this->framebufferHeight);
-	
+
 	glfwMakeContextCurrent(this->window); //IMPORTANT!!
 }
 
@@ -125,7 +125,7 @@ void Game::initModels()
 	);
 
 	this->models.push_back(new Model(
-		glm::vec3(2.f, -1.f, 2.f),
+		glm::vec3(0.f, 0.f, 0.f),
 		this->materials[0],
 		this->textures[TEX_PINK],
 		this->textures[TEX_PINK_SPECULAR],
@@ -163,24 +163,157 @@ void Game::initModels()
 		glm::vec3(0.f, 45.f, 30.f),
 		glm::vec3(0.3f)));
 
-	std::vector<std::vector<int>> map = { 
+	std::vector<std::vector<int>> map = {
 				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
-				{1, 2, 1, 1, 4, 0, 0, 0, 0, 1, 1, 1},
-				{1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 4, 1},
-				{1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
-				{1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1},
-				{1, 4, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1},
-				{1, 1, 0, 1, 3, 1, 0, 1, 1, 0, 1, 1},
-				{1, 1, 0, 1, 0, 1, 3, 1, 1, 0, 1, 1},
-				{1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1},
-				{1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 4, 1},
-				{1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+				{1, 2, 1, 4, 0, 4, 1, 1, 1, 1, 1, 1},
+				{1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1},
+				{1, 0, 1, 3, 0, 1, 1, 1, 1, 1, 1, 1},
+				{1, 0, 0, 0, 4, 1, 1, 1, 1, 1, 1, 1},
+				{1, 4, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 	};
 
 	std::cout << "===========================" << "\n";
-	std::cout << "MAZE MAP" << "\n";
+	std::cout << "-----MAZE MAP LEVEL 1 -----" << "\n";
+	std::cout << "===========================" << "\n";
+	std::cout << "\t";
+	for (int i = 0; i < map.size(); i++) {
+		for (int j = 0; j < map.size(); j++) {
+			if (map[i][j] == 2)
+			{
+				this->camera.setPosition(glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)));
+				this->camera.setCamOrigin(glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)));
+				std::cout << "O";
+			}
+			else if (map[i][j] == 3)
+			{
+				this->enemies.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_VIRI],
+					this->textures[TEX_VIRI_SPECULAR],
+					meshSphere));
+				std::cout << " ";
+
+			}
+			else if (map[i][j] == 1)
+			{
+				this->blocks.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_BRICKWALL],
+					this->textures[TEX_BRICKWALL_SPECULAR],
+					meshBlock));
+				std::cout << "X";
+				if (j == 11) {
+					std::cout << "\n";
+					if (i != 11) {
+						std::cout << "\t";
+					}
+				}
+			}
+			else if (map[i][j] == 4) {
+				this->targets.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_GRADIENT],
+					this->textures[TEX_GRADIENT_SPECULAR],
+					meshTarget));
+				std::cout << "A";
+			}
+			else {
+				std::cout << " ";
+			}
+		}
+	}
+	std::cout << "===========================\n";
+	for (auto*& i : meshBlock)
+		delete i;
+}
+
+
+void Game::initModelsLevel2()
+{
+	this->blocks.clear();
+	this->targets.clear();
+	this->models.clear();
+	this->enemies.clear();
+	// Plane Model
+	std::vector<Mesh*> meshPlane;
+
+	meshPlane.push_back(
+		new Mesh(
+			&Quad(),
+			glm::vec3(0.f, -1.f, 0.f),
+			glm::vec3(0.f),
+			glm::vec3(-90.f, 0.f, 0.f),
+			glm::vec3(50.f)
+		)
+	);
+
+	this->models.push_back(new Model(
+		glm::vec3(0.f, 0.f, 0.f),
+		this->materials[0],
+		this->textures[TEX_PINK],
+		this->textures[TEX_PINK_SPECULAR],
+		meshPlane));
+
+	// Sphere mesh init
+	std::vector<Vertex> sphere;
+	sphere = loadOBJ("Models/sphere.obj");
+
+	std::vector<Mesh*> meshSphere;
+	meshSphere.push_back(new Mesh(sphere.data(), sphere.size(), NULL, 0,
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.2f)));
+
+	// Block mesh init
+	std::vector<Vertex> block;
+	block = loadOBJ("Models/block.obj");
+
+	std::vector<Mesh*> meshBlock;
+
+	meshBlock.push_back(new Mesh(block.data(), block.size(), NULL, 0,
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f),
+		glm::vec3(1.f)));
+
+	// Target mesh init
+	std::vector<Mesh*> meshTarget;
+
+	meshTarget.push_back(new Mesh(block.data(), block.size(), NULL, 0,
+		glm::vec3(0.f, 0.0f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f, 45.f, 30.f),
+		glm::vec3(0.3f)));
+
+	std::vector<std::vector<int>> map = {
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 2, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1},
+				{1, 0, 0, 0, 0, 0, 4, 1, 1, 1, 1, 1},
+				{1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1},
+				{1, 4, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1},
+				{1, 0, 0, 3, 1, 0, 1, 1, 1, 1, 1, 1},
+				{1, 0, 3, 0, 0, 0, 4, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	};
+
+	std::cout << "===========================" << "\n";
+	std::cout << "-----MAZE MAP LEVEL 2 -----" << "\n";
 	std::cout << "==========================" << "\n";
+	std::cout << "\t";
 
 	for (int i = 0; i < map.size(); i++) {
 		for (int j = 0; j < map.size(); j++) {
@@ -198,18 +331,22 @@ void Game::initModels()
 					this->textures[TEX_VIRI],
 					this->textures[TEX_VIRI_SPECULAR],
 					meshSphere));
+				std::cout << " ";
 			}
 			else if (map[i][j] == 1)
 			{
 				this->blocks.push_back(new Model(
 					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
 					this->materials[0],
-					this->textures[TEX_CONTAINER],
-					this->textures[TEX_CONTAINER_SPECULAR],
+					this->textures[TEX_BRICKWALL],
+					this->textures[TEX_BRICKWALL_SPECULAR],
 					meshBlock));
 				std::cout << "X";
 				if (j == 11) {
 					std::cout << "\n";
+					if (i != 11) {
+						std::cout << "\t";
+					}
 				}
 			}
 			else if (map[i][j] == 4) {
@@ -226,6 +363,139 @@ void Game::initModels()
 			}
 		}
 	}
+	std::cout << "===========================\n";
+
+	for (auto*& i : meshBlock)
+		delete i;
+}
+
+void Game::initModelsLevel3()
+{
+	this->blocks.clear();
+	this->targets.clear();
+	this->models.clear();
+	this->enemies.clear();
+	// Plane Model
+	std::vector<Mesh*> meshPlane;
+
+	meshPlane.push_back(
+		new Mesh(
+			&Quad(),
+			glm::vec3(0.f, -1.f, 0.f),
+			glm::vec3(0.f),
+			glm::vec3(-90.f, 0.f, 0.f),
+			glm::vec3(50.f)
+		)
+	);
+
+	this->models.push_back(new Model(
+		glm::vec3(0.f, 0.f, 0.f),
+		this->materials[0],
+		this->textures[TEX_PINK],
+		this->textures[TEX_PINK_SPECULAR],
+		meshPlane));
+
+	// Sphere mesh init
+	std::vector<Vertex> sphere;
+	sphere = loadOBJ("Models/sphere.obj");
+
+	std::vector<Mesh*> meshSphere;
+	meshSphere.push_back(new Mesh(sphere.data(), sphere.size(), NULL, 0,
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.2f)));
+
+	// Block mesh init
+	std::vector<Vertex> block;
+	block = loadOBJ("Models/block.obj");
+
+	std::vector<Mesh*> meshBlock;
+
+	meshBlock.push_back(new Mesh(block.data(), block.size(), NULL, 0,
+		glm::vec3(0.f, 0.f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f),
+		glm::vec3(1.f)));
+
+	// Target mesh init
+	std::vector<Mesh*> meshTarget;
+
+	meshTarget.push_back(new Mesh(block.data(), block.size(), NULL, 0,
+		glm::vec3(0.f, 0.0f, 0.f),
+		glm::vec3(0.f),
+		glm::vec3(0.f, 45.f, 30.f),
+		glm::vec3(0.3f)));
+
+	std::vector<std::vector<int>> map = {
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+				{1, 2, 1, 1, 4, 0, 0, 0, 0, 1, 1, 1},
+				{1, 0, 1, 1, 1, 1, 0, 1, 0, 1, 4, 1},
+				{1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1},
+				{1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1},
+				{1, 4, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1},
+				{1, 1, 0, 1, 3, 1, 0, 1, 1, 0, 1, 1},
+				{1, 1, 0, 1, 0, 1, 3, 1, 1, 0, 1, 1},
+				{1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1},
+				{1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 4, 1},
+				{1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+	};
+
+	std::cout << "===========================" << "\n";
+	std::cout << "-----MAZE MAP LEVEL 3 -----" << "\n";
+	std::cout << "==========================" << "\n";
+	std::cout << "\t";
+
+	for (int i = 0; i < map.size(); i++) {
+		for (int j = 0; j < map.size(); j++) {
+			if (map[i][j] == 2)
+			{
+				this->camera.setPosition(glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)));
+				this->camera.setCamOrigin(glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)));
+				std::cout << "O";
+			}
+			else if (map[i][j] == 3)
+			{
+				this->enemies.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_VIRI],
+					this->textures[TEX_VIRI_SPECULAR],
+					meshSphere));
+				std::cout << " ";
+			}
+			else if (map[i][j] == 1)
+			{
+				this->blocks.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_BRICKWALL],
+					this->textures[TEX_BRICKWALL_SPECULAR],
+					meshBlock));
+				std::cout << "X";
+				if (j == 11) {
+					std::cout << "\n";
+					if (i != 11) {
+						std::cout << "\t";
+					}
+				}
+			}
+			else if (map[i][j] == 4) {
+				this->targets.push_back(new Model(
+					glm::vec3(2.f * (i - 1), 0.f, 2.f * (j - 1)),
+					this->materials[0],
+					this->textures[TEX_GRADIENT],
+					this->textures[TEX_GRADIENT_SPECULAR],
+					meshTarget));
+				std::cout << "A";
+			}
+			else {
+				std::cout << " ";
+			}
+		}
+	}
+	std::cout << "===========================\n";
 
 	for (auto*& i : meshBlock)
 		delete i;
@@ -403,7 +673,9 @@ bool Game::checkCollisionTarget()
 		float d = sqrt(pow(targetPos.x - camPos.x, 2) + pow(targetPos.z - camPos.z, 2) * 1.0);
 		if (d < 1.f) {
 			this->targets[i]->setPosition(targetPos + glm::vec3(100.f, 2.f, 100.f));
-			int score = this->increaseScore();
+			this->targets[i]->move(glm::vec3(0.f, 1.5f, 0.f));
+			this->setScore(this->score + 1);
+			int score = this->getScore();
 			std::cout << "You have " << score << " points.\n";
 			return true;
 		}
@@ -438,7 +710,7 @@ void Game::updateKeyboardInput()
 	{
 		glfwSetWindowShouldClose(this->window, GLFW_TRUE);
 	}
-	
+
 	glm::vec3 camNewPos = this->camera.getPosition();
 	//Camera
 	if (glfwGetKey(this->window, GLFW_KEY_W) == GLFW_PRESS)
@@ -476,7 +748,7 @@ void Game::updateInput()
 void Game::moveEnemies(float init_x, float final_x, int enemy_index) {
 	if (this->enemies[enemy_index]->getPosition().x <= init_x) {
 		this->enemies[enemy_index]->setFront(true);
-	} 
+	}
 	else if (this->enemies[enemy_index]->getPosition().x >= final_x) {
 		this->enemies[enemy_index]->setFront(false);
 	}
@@ -496,10 +768,17 @@ void Game::update()
 	this->updateDt();
 	this->updateInput();
 
-
-	this->moveEnemies(10, 18, 0);
-	this->moveEnemies(0, 12, 1);
-
+	if (this->level == 1) {
+		this->moveEnemies(4, 8, 0);
+	}
+	else if (this->level == 2) {
+		this->moveEnemies(2, 8, 0);
+		this->moveEnemies(6, 10, 1);
+	}
+	else if (this->level == 3) {
+		this->moveEnemies(10, 18, 0);
+		this->moveEnemies(0, 12, 1);
+	}
 
 	this->checkCollisionTarget();
 	if (this->checkCollisionEnemy()) {
@@ -510,14 +789,8 @@ void Game::update()
 		i->rotate(glm::vec3(0.f, 1.f, 1.f));
 	}
 
-	if (this->isWin()) {
-		std::cout << "YOU WIN!" << "\n";
-		this->setWindowShouldClose();
-	}
-	//this->moveEnemies();
-	//this->models[0]->rotate(glm::vec3(0.f, 1.f, 0.f));
-	//this->blocks[1]->rotate(glm::vec3(0.f, 1.f, 0.f));
-	//this->models[2]->rotate(glm::vec3(0.f, 1.f, 0.f));
+	this->isWin();
+
 }
 
 void Game::render()

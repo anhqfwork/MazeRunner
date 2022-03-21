@@ -141,10 +141,5 @@ static std::vector<Vertex> loadOBJ(const char* file_name)
 		vertices[i].color = glm::vec3(1.f, 1.f, 1.f);
 	}
 
-	//DEBUG
-	std::cout << "Nr of vertices: " << vertices.size() << "\n";
-
-	//Loaded success
-	std::cout << "OBJ file loaded!" << "\n";
 	return vertices;
 }
